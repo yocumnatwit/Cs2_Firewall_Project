@@ -25,16 +25,19 @@ replay_pid*
 
 # IntelliJ IDEA
 .idea/
+/idea
 *.iml
 *.ipr
 *.iws
 out/
+
 # Eclipse
 .classpath
 .project
 .settings/
 .metadata/
 bin/
+
 # NetBeans
 nbproject/private/
 build/
@@ -42,6 +45,7 @@ nbbuild/
 dist/
 nbdist/
 nbactions.xml
+
 # VS Code
 .vscode/
 
