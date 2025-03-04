@@ -22,6 +22,6 @@ public class Command {
      */
     @Override
     public String toString() {
-        return String.format("name: %s%n description: %s%n", name, description);
+        return String.format("{name: %s description: %s}%n", name, description);
     }
 }
