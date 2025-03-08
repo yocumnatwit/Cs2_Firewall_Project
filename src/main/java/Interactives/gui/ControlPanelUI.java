@@ -7,12 +7,14 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+
 import java.util.ArrayList;
 
 
@@ -28,6 +30,8 @@ public class ControlPanelUI extends Application {
     private int height = 960;
     private String windowName = "JavaFireWall";
     private int buffer;
+    private String inputToggle = "none";
+    private Text mainText;
 
 
     //JavaFX objects
@@ -48,11 +52,11 @@ public class ControlPanelUI extends Application {
         scene = new Scene(group, width, height);
         stage.setScene(scene);
 
-
         buffer = (int) ((canvas.getWidth() + canvas.getHeight()) / 80);
         //Actually showing things to the screen
         drawBackground();
         createButtons();
+        createInputField();
 
         stage.show();
     }
@@ -107,7 +111,7 @@ public class ControlPanelUI extends Application {
         double canvasWidth = canvas.getWidth();
         double canvasHeight = canvas.getHeight();
         //Text box for main display
-        Text mainText = new Text((canvasWidth / 4) + buffer * 1.5, canvas.getHeight() * 5 / 8, "Testing");
+        mainText = new Text((canvasWidth / 4) + buffer * 1.5, canvas.getHeight() * 5 / 8, "Testing");
         mainText.setFill(Color.GREEN);
         mainText.setTextAlignment(TextAlignment.LEFT);
 
@@ -149,7 +153,7 @@ public class ControlPanelUI extends Application {
         Button listOpenPortsButton = new Button("List Open Ports");
         listOpenPortsButton.setLayoutX(listBlockedIPsButton.getLayoutX() + listBlockedIPsButton.getPrefWidth() + buffer);
         listOpenPortsButton.setLayoutY(canvasHeight * 5 / 8 + buffer * 1.5);
-        listOpenPortsButton.setPrefWidth(mainTextPanelWidth / 4);
+        listOpenPortsButton.setPrefWidth(mainTextPanelWidth / 4 - buffer);
 
         //Method that is called on button press for listing open ports
         EventHandler<ActionEvent> openPortsButtonPress = new EventHandler<ActionEvent>() {
@@ -164,14 +168,98 @@ public class ControlPanelUI extends Application {
 
 
 
+        //add text for toggle inputs
+        Text toggleInfo = new Text((canvasWidth / 4) + buffer, canvasHeight * 5 / 8 + buffer * 4, "Input Toggles:");
+        toggleInfo.setFill(Color.BLACK);
+
+        //add buttons for toggle
+
+        //add button to block IP
+        Button addBlockedIPButton = new Button("Add Blocked IP");
+        addBlockedIPButton.setLayoutX(toggleInfo.getX());
+        addBlockedIPButton.setLayoutY(toggleInfo.getY() + buffer / 2.0);
+        addBlockedIPButton.setPrefWidth(mainTextPanelWidth / 4 - buffer * .8);
+
+        //Method that changes toggle to change input to add blocked IPs
+        EventHandler<ActionEvent> addBlockedIPs = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                inputToggle = "block ip";
+                addTextToPanel(mainText, "Input set to Block IP");
+            }
+        };
+
+        addBlockedIPButton.setOnAction(addBlockedIPs);
+
+        //add button to change input to remove blocked IPs
+        Button removeBlockedIPButton = new Button("Remove Blocked IP");
+        removeBlockedIPButton.setLayoutX(addBlockedIPButton.getLayoutX() + addBlockedIPButton.getPrefWidth() + buffer);
+        removeBlockedIPButton.setLayoutY(addBlockedIPButton.getLayoutY());
+        removeBlockedIPButton.setPrefWidth(addBlockedIPButton.getPrefWidth());
+
+        //Method that changes toggle to remove blocked IPs
+        EventHandler<ActionEvent> removeBlockedIPs = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                inputToggle = "remove blocked ip";
+                addTextToPanel(mainText, "Input set to Remove Blocked IP");
+            }
+        };
+
+        removeBlockedIPButton.setOnAction(removeBlockedIPs);
+
+        //add button to change input to block port
+        Button addBlockedPortButton = new Button( "Add Blocked Port");
+        addBlockedPortButton.setLayoutX(removeBlockedIPButton.getLayoutX() + removeBlockedIPButton.getPrefWidth() + buffer);
+        addBlockedPortButton.setLayoutY(removeBlockedIPButton.getLayoutY());
+        addBlockedPortButton.setPrefWidth(removeBlockedIPButton.getPrefWidth());
+
+        //Method to change toggle to add blocked ports
+        EventHandler<ActionEvent> addBlockedPort = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                inputToggle = "block port";
+                addTextToPanel(mainText, "Input set to Block Port");
+            }
+        };
+
+        addBlockedPortButton.setOnAction(addBlockedPort);
+
+
+        //add button to change input to remove blocked port
+        Button removeBlockedPortButton = new Button( "Remove Blocked Port");
+        removeBlockedPortButton.setLayoutX(addBlockedPortButton.getLayoutX() + addBlockedPortButton.getPrefWidth() + buffer);
+        removeBlockedPortButton.setLayoutY(addBlockedPortButton.getLayoutY());
+
+
+
+        //Method to change toggle to add blocked ports
+        EventHandler<ActionEvent> removeBlockedPort = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                inputToggle = "remove blocked port";
+                addTextToPanel(mainText, "Input set to Remove Blocked Port");
+            }
+        };
+
+        removeBlockedPortButton.setOnAction(removeBlockedPort);
+
+
+
 
         //add buttons to group
         group.getChildren().add(warningButton);
         group.getChildren().add(listBlockedIPsButton);
         group.getChildren().add(listOpenPortsButton);
+        group.getChildren().add(addBlockedIPButton);
+        group.getChildren().add(removeBlockedIPButton);
+        group.getChildren().add(addBlockedPortButton);
+        group.getChildren().add(removeBlockedPortButton);
+
 
         //add text to group
         group.getChildren().add(mainText);
+        group.getChildren().add(toggleInfo);
     }
 
     //Displays warning texts to main display
@@ -223,7 +311,55 @@ public class ControlPanelUI extends Application {
         textPanel.setY(maxHeight - textHeight + buffer);
     }
 
+    private void createInputField(){
+        //Create text above inputs
+        Text inputText = new Text(canvas.getWidth() / 4 + buffer, canvas.getHeight() * 5 / 8 + buffer * 6.5, "Input:");
 
+        //Create textfield
+        TextField inputTextField = new TextField();
+        inputTextField.setPrefWidth(canvas.getWidth() / 2);
+        inputTextField.setLayoutX(inputText.getX());
+        inputTextField.setLayoutY(inputText.getY() + buffer / 2);
+        inputTextField.setPromptText("Add or Remove Blocked IPs and Ports");
+
+
+        //Create method to handle inputs
+        EventHandler<ActionEvent> resolveInput = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String input = inputTextField.getText();
+                switch (inputToggle){
+                    case "none":
+                        addTextToPanel(mainText, "Please choose an Input Option");
+                        break;
+
+                    case "block ip":
+                        addTextToPanel(mainText, "Testing block ip input: " + input);
+                        break;
+
+                    case "remove blocked ip":
+                        addTextToPanel(mainText, "Testing remove blocked ip input: " + input);
+                        break;
+
+                    case "block port":
+                        addTextToPanel(mainText, "Testing block port input: " + input);
+                        break;
+
+                    case "remove blocked port":
+                        addTextToPanel(mainText, "Testing remove blocked port input: " + input);
+                        break;
+                }
+                inputTextField.clear();
+            }
+        };
+
+
+        inputTextField.setOnAction(resolveInput);
+
+        //add elements to group
+        group.getChildren().add(inputText);
+        group.getChildren().add(inputTextField);
+    }
 
 
     //clears all UI elements
