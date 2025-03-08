@@ -109,7 +109,11 @@ public class WarningManager {
     }
 
     /**
+     * Reads the content of the warning log file.
+     * This method attempts to read the file using UTF-8 encoding and returns its content as a string.
+     * If an error occurs during the reading process, it logs an error message and returns null.
      *
+     * @return The content of the warning log file as a string, or null if an error occurs while reading the file.
      */
     private static String readLogs() {
         try {
