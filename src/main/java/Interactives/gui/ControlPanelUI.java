@@ -1,9 +1,13 @@
 package Interactives.gui;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -24,6 +28,7 @@ public class ControlPanelUI extends Application {
     private int width = 1280; //setting default values for now
     private int height = 960;
     private String windowName = "JavaFireWall";
+
 
     //JavaFX objects
     private Group group;
@@ -46,7 +51,7 @@ public class ControlPanelUI extends Application {
 
         //Actually showing things to the screen
         drawBackground();
-
+        createButtons();
 
         stage.show();
     }
@@ -97,6 +102,68 @@ public class ControlPanelUI extends Application {
         group.getChildren().addAll(textPlacements);
         group.getChildren().addAll(panelLabels);
     }
+
+    private void createButtons(){
+        int buffer = (int) ((canvas.getWidth() + canvas.getHeight()) / 80);
+        double canvasWidth = canvas.getWidth();
+        double canvasHeight = canvas.getHeight();
+        //Text box for main display
+        Text mainText = new Text(canvas.getWidth() / 2, canvas.getHeight() * 5 / 8 + buffer, "Testing");
+
+
+
+        Button warningButton = new Button("Show Warnings");
+        double warningTextBoxWidth = (canvasWidth / 4) - buffer;
+        warningButton.setLayoutX(((canvasWidth * 3 / 4) + ((canvasWidth / 4) - buffer) / 2) - (warningTextBoxWidth / 4));
+        warningButton.setLayoutY(buffer * 1.5 + canvasHeight / 4);
+        warningButton.setPrefWidth(warningTextBoxWidth / 2);
+
+        //Method that is called on button press for listing warnings
+        EventHandler<ActionEvent> warningsButtonPress = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                displayWarning(mainText);
+            }
+        };
+
+        warningButton.setOnAction(warningsButtonPress);
+
+        Button listBlockedIPsButton = new Button("List Blocked IPs");
+        listBlockedIPsButton.setLayoutX((canvasWidth / 4) + buffer);
+        listBlockedIPsButton.setLayoutY(canvasHeight * 5 / 8 + buffer * 1.5);
+
+        //Method that is called on button press for listing blocked IPs
+        EventHandler<ActionEvent> blockedIPsButtonPress = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                displayBlockedIPs(mainText);
+            }
+        };
+
+
+
+
+
+
+
+        //add buttons to group
+        group.getChildren().add(warningButton);
+        group.getChildren().add(listBlockedIPsButton);
+    }
+
+    //Displays warning texts to main display
+    private void displayWarning(Text textPanel){
+
+    }
+
+    //Display blocked IPs to main display
+    private void displayBlockedIPs(Text textPanel){
+
+    }
+
+
+
+
 
     //clears the background
     private void clearUI(Group group){

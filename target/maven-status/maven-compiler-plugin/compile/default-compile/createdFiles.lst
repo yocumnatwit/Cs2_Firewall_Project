@@ -1,5 +1,6 @@
 Interactives\cli\Command.class
 components\threadhandler\ThreadHandler.class
+Interactives\gui\ControlPanelUI$1.class
 module-info.class
 components\trafficmonitor\TrafficMonitor.class
 components\warnman\WarningManager.class
