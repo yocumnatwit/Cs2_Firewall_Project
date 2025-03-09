@@ -40,7 +40,11 @@ public class ControlPanelUI extends Application {
     private GraphicsContext gc;
     private Canvas canvas;
 
-
+    /**
+     * Overrides main fucntion, the launching point for javaFX UI
+     *
+     * @param stage the stage for all javaFX elements to be added to
+     */
     @Override
     public void start(Stage stage) {
 
@@ -61,6 +65,10 @@ public class ControlPanelUI extends Application {
         stage.show();
     }
 
+
+    /**
+        Draws the background elements of the UI and adds them to the root
+     */
     private void drawBackground(){
         double canvasWidth = canvas.getWidth();
         double canvasHeight = canvas.getHeight();
@@ -73,7 +81,6 @@ public class ControlPanelUI extends Application {
         //Add places for text boxes
         ArrayList<Rectangle> textPlacements = new ArrayList<>();
         textPlacements.add(new Rectangle((canvasWidth / 4) + buffer, buffer, (canvasWidth / 2) - (buffer * 2), canvasHeight * 5 / 8)); // Main textbox
-        textPlacements.add(new Rectangle(buffer, buffer, (canvasWidth / 4) - buffer, canvasHeight / 4)); // Left textbox
         textPlacements.add(new Rectangle((canvasWidth * 3 / 4), buffer, (canvasWidth / 4) - buffer, canvasHeight / 4)); // Right textbox
 
         //Set the color of all text placements to black and round corners
@@ -87,7 +94,6 @@ public class ControlPanelUI extends Application {
         ArrayList<Text> panelLabels = new ArrayList<>();
         double textOffsetY = 20;
         panelLabels.add(new Text(((canvasWidth / 4) + buffer) + ((canvasWidth / 2) - (buffer * 2)) / 2, buffer + textOffsetY, "Main Panel")); // Main panel label
-        panelLabels.add(new Text(buffer + ((canvasWidth / 4) - buffer) / 2, buffer + textOffsetY, "Placeholder Panel")); // Left panel label
         panelLabels.add(new Text((canvasWidth * 3 / 4) + ((canvasWidth / 4) - buffer) / 2, buffer + textOffsetY, "Warning Panel")); // Right panel label
 
 
@@ -107,6 +113,12 @@ public class ControlPanelUI extends Application {
         group.getChildren().addAll(panelLabels);
     }
 
+
+    /**
+     * Creates buttons for UI and adds to root
+     *
+     * Establishes functions for each of the buttons when pushed
+     */
     private void createButtons(){
         double canvasWidth = canvas.getWidth();
         double canvasHeight = canvas.getHeight();
@@ -262,25 +274,42 @@ public class ControlPanelUI extends Application {
         group.getChildren().add(toggleInfo);
     }
 
-    //Displays warning texts to main display
+    /**
+     * Displays warning texts to main display
+     *
+     * @param textPanel text panel that the text will be added to
+     */
     private void displayWarning(Text textPanel){
         String newText = "Testing Warnings";
         addTextToPanel(textPanel, newText);
     }
 
-    //Display blocked IPs to main display
+    /**
+     * Display blocked IPs to main display
+     *
+     * @param textPanel text panel that the text will be added to
+     */
     private void displayBlockedIPs(Text textPanel){
         String newText = "Testing Blocked IPs";
         addTextToPanel(textPanel, newText);
     }
 
-    //Display open ports to main display
+    /**
+     * Display open ports to main display
+     *
+     * @param textPanel text panel that the text will be added to
+     */
     private void displayOpenPorts(Text textPanel){
         String newText = "Testing Open Ports";
         addTextToPanel(textPanel, newText);
     }
 
-    //adds text to panel and makes sure it fits in the size of panel
+    /**
+     * Adds text to panel and makes sure it fits in the size of panel
+     *
+     * @param textPanel text panel that the text will be added to
+     * @param newText text being added to panel
+     */
     private void addTextToPanel(Text textPanel, String newText) {
         String currentText = textPanel.getText();
         currentText = currentText + "\n" + newText;
@@ -311,11 +340,15 @@ public class ControlPanelUI extends Application {
         textPanel.setY(maxHeight - textHeight + buffer);
     }
 
+
+    /**
+     * Creates input field element for UI and adds to root
+     */
     private void createInputField(){
         //Create text above inputs
         Text inputText = new Text(canvas.getWidth() / 4 + buffer, canvas.getHeight() * 5 / 8 + buffer * 6.5, "Input:");
 
-        //Create textfield
+        //Create text field
         TextField inputTextField = new TextField();
         inputTextField.setPrefWidth(canvas.getWidth() / 2);
         inputTextField.setLayoutX(inputText.getX());
@@ -334,19 +367,23 @@ public class ControlPanelUI extends Application {
                         break;
 
                     case "block ip":
-                        addTextToPanel(mainText, "Testing block ip input: " + input);
+                        //addTextToPanel(mainText, "Testing block ip input: " + input);
+                        blockIP(input);
                         break;
 
                     case "remove blocked ip":
-                        addTextToPanel(mainText, "Testing remove blocked ip input: " + input);
+                        // addTextToPanel(mainText, "Testing remove blocked ip input: " + input);
+                        removeBlockedIP(input);
                         break;
 
                     case "block port":
-                        addTextToPanel(mainText, "Testing block port input: " + input);
+                        //addTextToPanel(mainText, "Testing block port input: " + input);
+                        blockPort(input);
                         break;
 
                     case "remove blocked port":
-                        addTextToPanel(mainText, "Testing remove blocked port input: " + input);
+                        //addTextToPanel(mainText, "Testing remove blocked port input: " + input);
+                        removeBlockedPort(input);
                         break;
                 }
                 inputTextField.clear();
@@ -361,14 +398,59 @@ public class ControlPanelUI extends Application {
         group.getChildren().add(inputTextField);
     }
 
+    /**
+     * Blocks the IP that is entered into the input field
+     *
+     * @param input input that will be validated to retrieve an IP that will be blocked
+     */
+    private void blockIP(String input){
+        // TODO: Implement this method
+    }
 
-    //clears all UI elements
+    /**
+     * Unblocks the IP that is entered into the input field
+     *
+     * @param input input will be validated to retrieve an IP that will be unblocked
+     */
+    private void removeBlockedIP(String input){
+        // TODO: Implement this method
+    }
+
+    /**
+     * Blocks the port that is entered into the input field
+     *
+     * @param input  input will be validated to retrieve a port that will be blocked
+     */
+    private void blockPort(String input){
+        // TODO: Implement this method
+    }
+
+
+    /**
+     * Unblocks the port that is entered into the input field
+     *
+     * @param input input will be validated to retrieve a port that will be unblocked
+     */
+    private void removeBlockedPort(String input){
+        // TODO: Implement this method
+    }
+
+
+    /**
+     * Clears all UI elements, not used but might be needed in the future
+     *
+     * @param group root that holds all elements to be cleared
+     */
     private void clearUI(Group group){
         group.getChildren().removeAll();
     }
 
 
-    //Centers Text around its x and y location
+    /**
+     * Centers Text around its x and y location
+     *
+     * @param text text element that will be centered
+     */
     private void centerText(Text text) {
         double textWidth = text.getBoundsInLocal().getWidth();
         double textHeight = text.getBoundsInLocal().getHeight();
@@ -377,6 +459,11 @@ public class ControlPanelUI extends Application {
         text.setY(text.getY() - (textHeight / 4));
     }
 
+    /**
+     * Overridden
+     *
+     * @param args command line arguments
+     */
     public static void launchControlPanel(String[] args) {
         launch(args);
     }
