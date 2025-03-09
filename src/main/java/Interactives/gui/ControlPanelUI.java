@@ -185,7 +185,6 @@ public class ControlPanelUI extends Application {
         toggleInfo.setFill(Color.BLACK);
 
         //add buttons for toggle
-
         //add button to block IP
         Button addBlockedIPButton = new Button("Add Blocked IP");
         addBlockedIPButton.setLayoutX(toggleInfo.getX());
@@ -245,7 +244,7 @@ public class ControlPanelUI extends Application {
 
 
 
-        //Method to change toggle to add blocked ports
+        //Method to change toggle to remove blocked ports
         EventHandler<ActionEvent> removeBlockedPort = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
