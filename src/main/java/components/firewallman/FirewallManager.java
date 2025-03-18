@@ -47,7 +47,7 @@ public class FirewallManager {
 		this.openPorts = openPorts;
 	}
 		
-	// + Firewall(openPorts: List<Integer>, blockedIPs: List<String>) 
+	// + Firewall(openPorts: List<Integer>, blockedIPs: List<String>)
 	public FirewallManager(ArrayList<Integer> openPorts, String[] blockedIPs) {
 		// Defaults
 		this.firewallStatus = false;
@@ -71,18 +71,13 @@ public class FirewallManager {
 	}
 		
 	public boolean checkBlockedIP(String ip) {
-		// TODO: Should we check blocked port instead?
-		// TODO: Need to have a way to define id and name.
-		String id = ip;
-		String name = "";
-		
-		Blockable block = new Blockable(id, name);
-		return this.blockedIPs.checkBlocked(block);
+		Blockable blockedIP = new Blockable("IP", ip);
+		return blockedIPs.checkBlocked(blockedIP);
 	}
 		
 	public void addBlockedIP(String ip) {
-		String id = ip;
-		String name = ""; // TODO: Unsure what the name field should be for object Blockable.
+		String id = "IP";
+		String name = ip;
 		
 		Blockable blockItem = new Blockable(id, name);
 		if (!this.blockedIPs.checkBlocked(blockItem)) {
@@ -91,9 +86,8 @@ public class FirewallManager {
 	}
 		
 	public void removeBlockedIP(String ip) {
-		// TODO: Need to have a way to define id and name.
-		String id = ip;
-		String name = "";
+		String id = "IP";
+		String name = ip;
 		
 		this.blockedIPs.removeListBlocked(new Blockable(id, name));
 	}
@@ -156,8 +150,7 @@ public class FirewallManager {
 			return;
 		}
 	}
-		
-	private void sendWarning(String message) {
-	}
+
+	
 		
 }
