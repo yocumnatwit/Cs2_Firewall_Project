@@ -50,3 +50,4 @@ nbactions.xml
 .vscode/
 
 target/
+warninglog.txt

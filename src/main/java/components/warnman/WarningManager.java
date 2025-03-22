@@ -50,7 +50,7 @@ public class WarningManager {
        warninglogBuffer = new StringBuffer();
     }
 
-    /**
+    /**q
      * This method writes a warning to the warninglogBuffer.
      * @param warning The warning to be written to the buffer.
      **/
@@ -116,6 +116,7 @@ public class WarningManager {
      * @return The content of the warning log file as a string, or null if an error occurs while reading the file.
      */
     public String readLogs() {
+        checkFileExistence();
         try {
             return FileUtils.readFileToString(warninglogFile, "UTF-8");
         } catch (IOException e) {
