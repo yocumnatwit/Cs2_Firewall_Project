@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import org.pcap4j.core.PcapNativeException;
 
 import java.util.ArrayList;
 
@@ -37,6 +38,14 @@ public class ControlPanelUI extends Application {
     private String inputToggle = "none";
     private Text mainText;
 
+
+
+    //Backend Objects
+    //Setting up the backend
+    ThreadHandler threadHandler = new ThreadHandler();
+    PortScanner portScanner = new PortScanner(threadHandler);
+    FirewallManager fireWallManager = new FirewallManager(portScanner);
+    WarningManager warningManager = new WarningManager();
 
     //JavaFX objects
     private Group group;
@@ -62,11 +71,18 @@ public class ControlPanelUI extends Application {
 
         buffer = (int) ((canvas.getWidth() + canvas.getHeight()) / 80);
 
-        //Setting up the backend
-        ThreadHandler threadHandler = new ThreadHandler();
-        FirewallManager firewallManager = new FirewallManager();
-        PortScanner portScanner = new PortScanner();
-        WarningManager warningManager = new WarningManager();
+
+
+
+
+        threadHandler.run(() -> {
+            try {
+                fireWallManager.startFirewall();
+            } catch (PcapNativeException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
 
 
 
@@ -293,7 +309,7 @@ public class ControlPanelUI extends Application {
      * @param textPanel text panel that the text will be added to
      */
     private void displayWarning(Text textPanel){
-        String newText = "Testing Warnings";
+        String newText = warningManager.readLogs();
         addTextToPanel(textPanel, newText);
     }
 
@@ -313,7 +329,7 @@ public class ControlPanelUI extends Application {
      * @param textPanel text panel that the text will be added to
      */
     private void displayOpenPorts(Text textPanel){
-        String newText = "Testing Open Ports";
+        String newText = portScanner.getOpenPorts().toString();
         addTextToPanel(textPanel, newText);
     }
 

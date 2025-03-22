@@ -25,17 +25,19 @@ public class FirewallManager {
     private final Blocklist blockedIPs;
     private ArrayList<Integer> openPorts;
     private final ArrayList<Integer> allowedPorts;
-    private final Map<InetAddress, Set<Integer>> ipPortsMap; 
+    private final Map<InetAddress, Set<Integer>> ipPortsMap;
+	private PortScanner ps;
 
-    public FirewallManager() {
+    public FirewallManager(PortScanner ps) {
         this.firewallStatus = false;
         this.blockedIPs = new Blocklist();
         this.openPorts = new ArrayList<>();
         this.allowedPorts = new ArrayList<>();
         this.ipPortsMap = new ConcurrentHashMap<>();
+		this.ps = ps;
     }
 
-	public FirewallManager(String[] blockedIPs) {
+	public FirewallManager(String[] blockedIPs, PortScanner ps) {
         this.firewallStatus = false;
 		Blockable[] bL = new Blockable[blockedIPs.length];
 		for (int i = 0; i < blockedIPs.length; i++) {
@@ -45,6 +47,7 @@ public class FirewallManager {
         this.openPorts = new ArrayList<>();
         this.allowedPorts = new ArrayList<>();
         this.ipPortsMap = new ConcurrentHashMap<>();
+		this.ps = ps;
     }
 
 	public FirewallManager(ArrayList<Integer> openPorts) {
@@ -100,6 +103,7 @@ public class FirewallManager {
 
                 while (firewallStatus) {
                     handle.loop(1, listener);
+					ps.updateOpenPorts();
                 }
             }
         } catch (Exception e) {
@@ -133,7 +137,6 @@ public class FirewallManager {
     }
 
     public void scanPorts() {
-        PortScanner ps = new PortScanner(allowedPorts);
         this.openPorts = ps.getOpenPorts();
         ps.checkAuthorizations();
     }

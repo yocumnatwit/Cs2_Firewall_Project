@@ -9,13 +9,17 @@ import components.warnman.WarningManager;
 public class PortScanner {
     private ArrayList<Integer> authorizedPorts = new ArrayList<>();
     private ArrayList<Integer> openPorts = new ArrayList<>();
+    public ThreadHandler th;
 
-    public PortScanner() {}
+    public PortScanner(ThreadHandler th) {
+        this.th = th;
+    }
 
-    public PortScanner(ArrayList<Integer> authPorts) {
+    public PortScanner(ArrayList<Integer> authPorts, ThreadHandler th) {
         for (Integer port : authPorts) {
-            this.authorizedPorts.add(port);
+            authorizedPorts.add(port);
         }
+        this.th = th;
     }
 
     private void sendWarning(String warning) {
@@ -26,12 +30,18 @@ public class PortScanner {
         warnMan.writeWarnings();
     }
 
-    public ArrayList<Integer> scanPorts(ThreadHandler th) {
+    public ArrayList<Integer> scanPorts() {
         Vector<Integer> detectedOpenPortsVec = new Vector<>();
         try {
             int openThreads = th.getOpenThreads();
+            int start = 0;
+            int end;
             for (int i = 0; i < openThreads; i++){
-                th.run(() -> detectedOpenPortsVec.addAll(scanPorts(1, 65535)));
+                end = 65535 / openThreads * (i + 1);
+                int finalEnd = end;
+                int finalStart = start;
+                th.run(() -> detectedOpenPortsVec.addAll(scanPorts(finalStart, finalEnd)));
+                start = end + 1;
             }
 
         } catch (Exception e) {
@@ -64,7 +74,7 @@ public class PortScanner {
     }
 
     public void updateOpenPorts() {
-        openPorts = scanPorts(new ThreadHandler());
+        openPorts = scanPorts();
     }
 
     public void allowPort(int port) {

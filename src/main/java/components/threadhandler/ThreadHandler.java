@@ -4,15 +4,18 @@ import java.util.ArrayList;
 
 public class ThreadHandler extends Thread{
 
-    private final int CORECOUNT = Runtime.getRuntime().availableProcessors();
-    private final int MAXTHREADS = CORECOUNT * 2;
+    private final int CORECOUNT;
+    private final int MAXTHREADS;
     
     private int currentThreads = 0;
     private ArrayList<Thread> runningThreads = new ArrayList<>();
     private ArrayList<Runnable> runningTasks = new ArrayList<>();
 
 
-    public ThreadHandler(){}
+    public ThreadHandler(){
+       CORECOUNT = Runtime.getRuntime().availableProcessors();
+       MAXTHREADS = CORECOUNT * 2;
+    }
 
     public synchronized void run(Runnable task) {
         if (currentThreads >= MAXTHREADS) {
