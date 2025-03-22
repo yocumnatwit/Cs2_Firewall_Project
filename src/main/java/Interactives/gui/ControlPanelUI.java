@@ -423,7 +423,7 @@ public class ControlPanelUI extends Application {
 
                     case "block ip":
                         //addTextToPanel(mainText, "Testing block ip input: " + input);
-                        blockIP(input);
+                        blockIP(input, mainText);
                         break;
 
                     case "remove blocked ip":
@@ -458,11 +458,17 @@ public class ControlPanelUI extends Application {
      *
      * @param input input that will be validated to retrieve an IP that will be blocked
      */
-    private void blockIP(String input){
+    private void blockIP(String input, Text textPanel){
         //Verify IP is valid
+        if (verifyIP(input)){
+            //Add IP to blocklist in firewall
+            fireWallManager.addBlockedIP(input);
+            addTextToPanel(textPanel, String.format("IP Blocked: %s", input));
+        }else{
+            addTextToPanel(textPanel, "INVALID IP");
+        }
 
-        //Add IP to blocklist in firewall
-        fireWallManager.addBlockedIP(input);
+
     }
 
     /**
@@ -516,6 +522,26 @@ public class ControlPanelUI extends Application {
         text.setX(text.getX() - (textWidth / 2));
         text.setY(text.getY() - (textHeight / 4));
     }
+
+    /**
+     * Verified IP
+     *
+     * @param input, input that will be verified to see if it is viable IP
+     */
+    public boolean verifyIP (String input){
+        String[] splitIP = input.split("\\.");
+        if (splitIP.length != 4){
+            return false;
+        }
+
+        for (int i = 0; i < splitIP.length; i++){
+            if (!((Integer.parseInt(splitIP[i]) >= 0 && Integer.parseInt(splitIP[i]) <= 255))){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * Overridden
