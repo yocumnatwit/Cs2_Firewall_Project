@@ -123,12 +123,4 @@ public class WarningManager {
         }
         return null;
     }
-
-    public static void startWarningManager() {
-
-    }
-
-    public static void stopWarningManager() {
-
-    }
 }
