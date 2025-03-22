@@ -21,7 +21,8 @@ import javafx.scene.text.Text;
 import org.pcap4j.core.PcapNativeException;
 
 import java.util.ArrayList;
-
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -329,8 +330,20 @@ public class ControlPanelUI extends Application {
      * @param textPanel text panel that the text will be added to
      */
     private void displayOpenPorts(Text textPanel){
-        String newText = portScanner.getOpenPorts().toString();
-        addTextToPanel(textPanel, newText);
+        ArrayList<Integer> sortedList = portScanner.getOpenPorts();
+        Collections.sort(sortedList);
+        StringBuilder newText = new StringBuilder();
+        for (int i = 0; i < sortedList.size(); i++){
+            if (i != sortedList.size() - 1){
+                newText.append(sortedList.get(i)+ ", ");
+            }else {
+                newText.append(sortedList.get(i));
+            }
+            if (i % 10 == 0 && i != 0){
+                newText.append("\n");
+            }
+        }
+        addTextToPanel(textPanel, newText.toString());
     }
 
     /**
