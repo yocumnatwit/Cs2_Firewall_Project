@@ -49,3 +49,4 @@ nbactions.xml
 # VS Code
 .vscode/
 
+target/
