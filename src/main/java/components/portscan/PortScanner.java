@@ -31,7 +31,7 @@ public class PortScanner {
         try {
             int openThreads = th.getOpenThreads();
             for (int i = 0; i < openThreads; i++){
-                th.run(detectedOpenPortsVec.addAll(scanPorts()))
+                th.run(() -> detectedOpenPortsVec.addAll(scanPorts(1, 65535)));
             }
 
         } catch (Exception e) {
@@ -54,9 +54,6 @@ public class PortScanner {
         return openPorts;
     }
 
-
-
-
     public ArrayList<Integer> getAuthorizedPorts() {
         return authorizedPorts;
     }
@@ -67,7 +64,7 @@ public class PortScanner {
     }
 
     public void updateOpenPorts() {
-        openPorts = scanPorts();
+        openPorts = scanPorts(new ThreadHandler());
     }
 
     public void allowPort(int port) {
