@@ -148,4 +148,8 @@ public class FirewallManager {
     public void disallowPort(int port) {
         allowedPorts.remove(port);
     }
+
+    public Blocklist getBlockedIPs(){
+        return blockedIPs;
+    }
 }

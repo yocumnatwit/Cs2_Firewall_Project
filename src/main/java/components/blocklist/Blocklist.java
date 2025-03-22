@@ -59,4 +59,12 @@ public class Blocklist {
     public int totalBlocked() {
         return listBlocked.size();
     }
+
+
+    public ArrayList<Blockable> toArray(){
+        return listBlocked;
+    }
+
+
+
 }

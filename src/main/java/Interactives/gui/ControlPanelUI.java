@@ -1,5 +1,7 @@
 package Interactives.gui;
 
+import components.blocklist.Blockable;
+import components.blocklist.Blocklist;
 import components.firewallman.FirewallManager;
 import components.portscan.PortScanner;
 import components.threadhandler.ThreadHandler;
@@ -22,7 +24,7 @@ import org.pcap4j.core.PcapNativeException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+
 
 
 /**
@@ -320,8 +322,19 @@ public class ControlPanelUI extends Application {
      * @param textPanel text panel that the text will be added to
      */
     private void displayBlockedIPs(Text textPanel){
-        String newText = "Testing Blocked IPs";
-        addTextToPanel(textPanel, newText);
+        ArrayList<Blockable> blockedIPs = fireWallManager.getBlockedIPs().toArray();
+        StringBuilder newText = new StringBuilder();
+        for (int i = 0; i < blockedIPs.size(); i++){
+            if (i != blockedIPs.size() - 1){
+                newText.append(blockedIPs.get(i).toString() + ", ");
+            }else{
+                newText.append(blockedIPs.get(i).toString());
+            }
+            if (i % 6 == 0 && i != 0){
+                newText.append("\n");
+            }
+        }
+        addTextToPanel(textPanel, newText.toString());
     }
 
     /**
@@ -446,7 +459,10 @@ public class ControlPanelUI extends Application {
      * @param input input that will be validated to retrieve an IP that will be blocked
      */
     private void blockIP(String input){
-        // TODO: Implement this method
+        //Verify IP is valid
+
+        //Add IP to blocklist in firewall
+        fireWallManager.addBlockedIP(input);
     }
 
     /**

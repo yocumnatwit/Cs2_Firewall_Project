@@ -41,6 +41,6 @@ public class Blockable {
      */
     @Override
     public String toString() {
-        return String.format("Blockable[id=%s, name=%s]", id, name);
+        return String.format("%s", name);
     }
 }
