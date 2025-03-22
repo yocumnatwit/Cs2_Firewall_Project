@@ -1,6 +1,5 @@
 package components.threadhandler;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 // TODO: Still must be completed.
@@ -11,64 +10,61 @@ public class ThreadHandler extends Thread{
     
     private int currentThreads = 0;
     private ArrayList<Thread> runningThreads = new ArrayList<>();
-    private ArrayList<Process> runningProcesses = new ArrayList<>();
+    private ArrayList<Runnable> runningTasks = new ArrayList<>();
 
-    //+ run(process: String): void
-    public synchronized void run(String process) {
+
+    public synchronized void run(Runnable task) {
         if (currentThreads >= MAXTHREADS) {
-            System.out.println("Max thread limit reached. Cannot start more processes.");
+            System.out.println("Max thread limit reached. Cannot start more threads.");
             return;
         }
 
-        Thread processThread = new Thread(() -> {
+        Thread taskThread = new Thread(() -> {
             try {
-                ProcessBuilder builder = new ProcessBuilder(process);
-                Process proc = builder.start();
+                task.run();  
                 synchronized (this) {
-                    runningProcesses.add(proc);
-                    runningThreads.add(Thread.currentThread());
-                    currentThreads++;
-                }
-
-               
-                while (proc.isAlive()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-
-                synchronized (this) {
-                    runningProcesses.remove(proc);
+                    runningTasks.remove(task);
                     runningThreads.remove(Thread.currentThread());
                     currentThreads--;
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
 
-        processThread.start();
-    }
-    //+ run(process: String, port: int): void
-    public void run(String process, int Port) {
-    	
-    }
-    //+ pauseThread(process: String): void
-    public void pauseThread(String process) {
-    	
-    }
-    //+ killThread(process: String)
-    public void killThread(String process) {
-    	
+        taskThread.start(); 
+        synchronized (this) {
+            runningTasks.add(task);
+            runningThreads.add(taskThread);
+            currentThreads++;
+        }
     }
 
-    //+ printThread(): void
-    public void printThread() {
-        System.out.println("Currently running processes:");
-        for (Process proc : runningProcesses) {
-            System.out.println(proc.info().commandLine());
+    
+    public void sleepThread(Thread thread, int timeMillis) {
+        if (runningThreads.contains(thread)) {
+            try {
+                Thread.sleep(timeMillis);
+            } catch (InterruptedException e) {
+                System.out.println("Thread sleep interrupted: " + thread.getName());
+                Thread.currentThread().interrupt(); // Restore interrupted status
+            }
+        }
+    }
+
+   
+    public void killThread(Thread thread) {
+    	if (runningThreads.contains(thread)) {
+            thread.interrupt();
+            System.out.println("Killed thread: " + thread.getName());
+        }
+    }
+
+
+    public void printThreads() {
+        System.out.println("Currently running threads:");
+        for (Thread thread : runningThreads) {
+            System.out.println("Thread: " + thread.getName());
         }
     }
     
