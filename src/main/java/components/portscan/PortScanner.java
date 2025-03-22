@@ -1,7 +1,9 @@
 package components.portscan;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
+import components.threadhandler.ThreadHandler;
 import components.warnman.WarningManager;
 
 public class PortScanner {
@@ -24,22 +26,36 @@ public class PortScanner {
         warnMan.writeWarnings();
     }
 
-    public ArrayList<Integer> scanPorts() {
-        ArrayList<Integer> detectedOpenPorts = new ArrayList<>();
+    public ArrayList<Integer> scanPorts(ThreadHandler th) {
+        Vector<Integer> detectedOpenPortsVec = new Vector<>();
         try {
-            for (int port = 1; port <= 65535; port++) {
-                try (java.net.Socket socket = new java.net.Socket()) {
-                   socket.connect(new java.net.InetSocketAddress("localhost", port), 200);
-                    detectedOpenPorts.add(port);
-                } catch (Exception ignored) {
-
-                }
+            int openThreads = th.getOpenThreads();
+            for (int i = 0; i < openThreads; i++){
+                th.run(detectedOpenPortsVec.addAll(scanPorts()))
             }
+
         } catch (Exception e) {
             sendWarning(e.toString());
         }
-        return detectedOpenPorts;
+        return new ArrayList<>(detectedOpenPortsVec);
     }
+
+    public ArrayList<Integer> scanPorts(int start, int end){
+        ArrayList<Integer> openPorts = new ArrayList<>();
+        for (int port = start; port <= end; port++) {
+            try (java.net.Socket socket = new java.net.Socket()) {
+                socket.connect(new java.net.InetSocketAddress("localhost", port), 200);
+                openPorts.add(port);
+            } catch (Exception ignored) {
+
+            }
+        }
+
+        return openPorts;
+    }
+
+
+
 
     public ArrayList<Integer> getAuthorizedPorts() {
         return authorizedPorts;

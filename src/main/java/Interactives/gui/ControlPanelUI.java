@@ -1,5 +1,9 @@
 package Interactives.gui;
 
+import components.firewallman.FirewallManager;
+import components.portscan.PortScanner;
+import components.threadhandler.ThreadHandler;
+import components.warnman.WarningManager;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -57,6 +61,16 @@ public class ControlPanelUI extends Application {
         stage.setScene(scene);
 
         buffer = (int) ((canvas.getWidth() + canvas.getHeight()) / 80);
+
+        //Setting up the backend
+        ThreadHandler threadHandler = new ThreadHandler();
+        FirewallManager firewallManager = new FirewallManager();
+        PortScanner portScanner = new PortScanner();
+        WarningManager warningManager = new WarningManager();
+
+
+
+
         //Actually showing things to the screen
         drawBackground();
         createButtons();

@@ -1,7 +1,11 @@
 package components.firewallman;
 
 import java.util.ArrayList;
-
+import org.pcap4j.core.*;
+import org.pcap4j.packet.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.util.List;
 import components.blocklist.Blockable;
 import components.blocklist.Blocklist;
 import components.portscan.PortScanner;
@@ -11,8 +15,6 @@ public class FirewallManager {
 	public boolean firewallStatus;
 	private Blocklist blockedIPs;
 	private ArrayList<Integer> openPorts;
-	
-	// TODO: Take a look at how this should be used. Currently no function can use it.
 	private ArrayList<Integer> allowedPorts;
 
 	public FirewallManager() {
@@ -61,14 +63,41 @@ public class FirewallManager {
 		}
 	}
 		
-	public void startFirewall() {
+	public void startFirewall() throws PcapNativeException {
 		this.firewallStatus = true;
 		while (firewallStatus) {
 			try {
+				PcapNetworkInterface nif = Pcaps.findAllDevs().get(0);
+				int snapshotLength = 65536;
+				int readTimeout = 50;
 
+				PcapHandle handle = nif.openLive(snapshotLength, PcapNetworkInterface.PcapMode.PROMISCUOUS, readTimeout);
+
+				PacketListener listener = packet -> {
+					if (packet instanceof IpPacket) {
+						IpPacket ipPacket = (IpPacket) packet;
+
+						if (ipPacket.getPayload() instanceof TcpPacket) {
+							TcpPacket tcpPacket = (TcpPacket) ipPacket.getPayload();
+							if (tcpPacket.getTcpFlags().syn()) {
+								InetAddress srcIp = ipPacket.getHeader().getSrcAddr();
+								int destPort = tcpPacket.getHeader().getDstPort().valueAsInt();
+
+								ipToPortsMap.putIfAbsent(srcIp, new HashSet<>());
+								ipToPortsMap.get(srcIp).add(destPort);
+
+								if (ipToPortsMap.get(srcIp).size() >= 5) {
+									String srcIP = ipToPortsMap.get(srcIp);
+									if (blockedIPs.checkBlocked(new blockable("IP", srcIP))) {
+										addBlockedIP(srcIP);
+									}
+								}
+							}
+					}
+				};
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
-			}
+			} finally {}
 		}
 	}
 		

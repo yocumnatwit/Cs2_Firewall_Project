@@ -12,6 +12,8 @@ public class ThreadHandler extends Thread{
     private ArrayList<Runnable> runningTasks = new ArrayList<>();
 
 
+    public ThreadHandler(){}
+
     public synchronized void run(Runnable task) {
         if (currentThreads >= MAXTHREADS) {
             System.out.println("Max thread limit reached. Cannot start more threads.");
@@ -66,5 +68,9 @@ public class ThreadHandler extends Thread{
             System.out.println("Thread: " + thread.getName());
         }
     }
-    
+
+
+    public int getOpenThreads() {
+        return MAXTHREADS - currentThreads;
+    }
 }
