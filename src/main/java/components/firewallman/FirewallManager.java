@@ -63,6 +63,13 @@ public class FirewallManager {
 		
 	public void startFirewall() {
 		this.firewallStatus = true;
+		while (firewallStatus) {
+			try {
+
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+		}
 	}
 		
 	public void stopFirewall() {

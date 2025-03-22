@@ -2,7 +2,6 @@ package components.threadhandler;
 
 import java.util.ArrayList;
 
-// TODO: Still must be completed.
 public class ThreadHandler extends Thread{
 
     private final int CORECOUNT = Runtime.getRuntime().availableProcessors();
