@@ -2,6 +2,7 @@ package components.portscan;
 
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 import components.threadhandler.ThreadHandler;
 import components.warnman.WarningManager;
@@ -34,16 +35,23 @@ public class PortScanner {
         Vector<Integer> detectedOpenPortsVec = new Vector<>();
         try {
             int openThreads = th.getOpenThreads();
+            CountDownLatch latch = new CountDownLatch(openThreads);
             int start = 0;
             int end;
             for (int i = 0; i < openThreads; i++){
                 end = 65535 / openThreads * (i + 1);
                 int finalEnd = end;
                 int finalStart = start;
-                th.run(() -> detectedOpenPortsVec.addAll(scanPorts(finalStart, finalEnd)));
+                th.run(() -> {
+                    try {
+                        detectedOpenPortsVec.addAll(scanPorts(finalStart, finalEnd));
+                    }finally {
+                        latch.countDown();
+                    }
+                });
                 start = end + 1;
             }
-
+            latch.await();
         } catch (Exception e) {
             sendWarning(e.toString());
         }
