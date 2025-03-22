@@ -10,21 +10,46 @@ public class ThreadHandler extends Thread{
     private final int MAXTHREADS = CORECOUNT * 2;
     
     private int currentThreads = 0;
+    private ArrayList<Thread> runningThreads = new ArrayList<>();
     private ArrayList<Process> runningProcesses = new ArrayList<>();
 
     //+ run(process: String): void
-    public void run(String process) {
-    	if (currentThreads == MAXTHREADS) {
-    		return;
-    	}
-    	
-        ProcessBuilder builder = new ProcessBuilder(process);
-        try {
-        	Process proc = builder.start();
-        	runningProcesses.add(proc);
-        	currentThreads++;
-        	
-        } catch(IOException e) {}
+    public synchronized void run(String process) {
+        if (currentThreads >= MAXTHREADS) {
+            System.out.println("Max thread limit reached. Cannot start more processes.");
+            return;
+        }
+
+        Thread processThread = new Thread(() -> {
+            try {
+                ProcessBuilder builder = new ProcessBuilder(process);
+                Process proc = builder.start();
+                synchronized (this) {
+                    runningProcesses.add(proc);
+                    runningThreads.add(Thread.currentThread());
+                    currentThreads++;
+                }
+
+               
+                while (proc.isAlive()) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
+                synchronized (this) {
+                    runningProcesses.remove(proc);
+                    runningThreads.remove(Thread.currentThread());
+                    currentThreads--;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        processThread.start();
     }
     //+ run(process: String, port: int): void
     public void run(String process, int Port) {
@@ -38,9 +63,13 @@ public class ThreadHandler extends Thread{
     public void killThread(String process) {
     	
     }
+
     //+ printThread(): void
     public void printThread() {
-    	
+        System.out.println("Currently running processes:");
+        for (Process proc : runningProcesses) {
+            System.out.println(proc.info().commandLine());
+        }
     }
     
 }

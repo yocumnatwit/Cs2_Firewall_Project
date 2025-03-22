@@ -1,11 +1,10 @@
 package components.firewallman;
 
 import java.util.ArrayList;
-import java.net.*;
-import java.io.*;
 
-import components.blocklist.Blocklist;
 import components.blocklist.Blockable;
+import components.blocklist.Blocklist;
+import components.portscan.PortScanner;
 
 public class FirewallManager {
 	// Defining global variables
@@ -15,7 +14,7 @@ public class FirewallManager {
 	
 	// TODO: Take a look at how this should be used. Currently no function can use it.
 	private ArrayList<Integer> allowedPorts;
-		
+
 	public FirewallManager() {
 		// Defaults
 		this.firewallStatus = false;
@@ -93,64 +92,22 @@ public class FirewallManager {
 	}
 		
 	public boolean checkPortStatus(int port) {
-		// Returns true if port is open.
+		scanPorts();
 		return this.openPorts.contains(port);
 	}
 		
 	public void scanPorts() {
-		int lineCount = 0;
-		
-		// https://askubuntu.com/questions/538443/whats-the-difference-between-port-status-listening-time-wait-close-wait
-		try {
-			Process process = new ProcessBuilder("netstat", "-antd").start();
-			
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			
-			
-			// Process each line
-			while(((line = reader.readLine()) != null)) {
-				// Skip first two lines
-				if (lineCount <= 1) {
-					continue;
-				}
-				
-				// Split by whitespace
-				String[] results = line.split("\\s+");
-				
-				// Line may be processed wrong so we should skip
-				if (results.length != 6) {
-					continue;
-				}
-				
-				String state = results[5];
-				if (state.equals("CLOSE")) {
-					continue;
-				}
-				
-				String localAddress = results[3];
-				String portString = localAddress.split(":")[1];
-				
-				try {
-					int port = Integer.parseInt(portString);
-					this.openPorts.add(port);
-				} catch (NumberFormatException e) {
-					continue;
-				}
-				
-				
-			}
-			
-			reader.close();
-			process.waitFor();
-			
-		} catch(IOException | InterruptedException e) {
-			// TODO: Possibly implement some way to show that scanPorts failed.
-			// TODO: Add error in-case netstat is not installed.
-			return;
-		}
+		PortScanner ps = new PortScanner(allowedPorts);
+		this.openPorts = ps.getOpenPorts();
+
+		ps.checkAuthorizations();
 	}
 
-	
-		
+    public void allowPort(int port) {
+        allowedPorts.add(port);
+    }
+
+    public void disallowPort(int port) {
+        allowedPorts.remove(port);
+    }
 }

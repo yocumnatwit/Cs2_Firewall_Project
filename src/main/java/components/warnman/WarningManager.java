@@ -29,7 +29,7 @@ public class WarningManager {
      * If it does not exist, it creates a new file.
      * It is used to ensure that the warning log file is available for writing.
      */
-    private static void checkFileExistence() {
+    private void checkFileExistence() {
         if ( !warninglogFile.exists() ) {
             try {
                 boolean output = warninglogFile.createNewFile();
@@ -46,7 +46,7 @@ public class WarningManager {
      * This method zeros the warninglogBuffer.
      * It is used to clear the buffer after the warnings have been logged.
      **/
-    private static void zeroBuffer() {
+    private void zeroBuffer() {
        warninglogBuffer = new StringBuffer();
     }
 
@@ -54,7 +54,7 @@ public class WarningManager {
      * This method writes a warning to the warninglogBuffer.
      * @param warning The warning to be written to the buffer.
      **/
-    public static void writeWarning( String warning ) {
+    public void writeWarning( String warning ) {
         warninglogBuffer.append( String.format( "%s%n", warning ) );
     }
 
@@ -99,7 +99,7 @@ public class WarningManager {
      * This method reads the content of the warninglogFile and outputs it to the standard output.
      * If an error occurs during the file reading process, an error message is displayed on the standard error output.
      */
-    public static void printLogFile() {
+    public void printLogFile() {
         String content = readLogs();
         if ( content != null ) {
             System.out.println( content );
@@ -115,7 +115,7 @@ public class WarningManager {
      *
      * @return The content of the warning log file as a string, or null if an error occurs while reading the file.
      */
-    private static String readLogs() {
+    private String readLogs() {
         try {
             return FileUtils.readFileToString(warninglogFile, "UTF-8");
         } catch (IOException e) {
