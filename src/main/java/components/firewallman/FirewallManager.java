@@ -1,143 +1,142 @@
 package components.firewallman;
 
-import java.util.ArrayList;
-import org.pcap4j.core.*;
-import org.pcap4j.packet.*;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.pcap4j.core.PacketListener;
+import org.pcap4j.core.PcapHandle;
+import org.pcap4j.core.PcapNativeException;
+import org.pcap4j.core.PcapNetworkInterface;
+import org.pcap4j.core.Pcaps;
+import org.pcap4j.packet.IpPacket;
+import org.pcap4j.packet.TcpPacket;
+
 import components.blocklist.Blockable;
 import components.blocklist.Blocklist;
 import components.portscan.PortScanner;
 
 public class FirewallManager {
-	// Defining global variables
-	public boolean firewallStatus;
-	private Blocklist blockedIPs;
-	private ArrayList<Integer> openPorts;
-	private ArrayList<Integer> allowedPorts;
+    // Defining global variables
+    public volatile boolean firewallStatus; // Thread-safe flag
+    private final Blocklist blockedIPs;
+    private ArrayList<Integer> openPorts;
+    private final ArrayList<Integer> allowedPorts;
+    private final Map<InetAddress, Set<Integer>> ipPortsMap; 
 
-	public FirewallManager() {
-		// Defaults
-		this.firewallStatus = false;
-		this.blockedIPs = new Blocklist();
-		this.openPorts = new ArrayList<>();
-		this.allowedPorts = new ArrayList<>();
-	}
-		
+    public FirewallManager() {
+        this.firewallStatus = false;
+        this.blockedIPs = new Blocklist();
+        this.openPorts = new ArrayList<>();
+        this.allowedPorts = new ArrayList<>();
+        this.ipPortsMap = new ConcurrentHashMap<>();
+    }
+
 	public FirewallManager(String[] blockedIPs) {
-		// Defaults
-		this.firewallStatus = false;
-		this.openPorts = new ArrayList<>();
-		this.allowedPorts = new ArrayList<>();
-		
-		// Populate blockedIPs
+        this.firewallStatus = false;
+		Blockable[] bL = new Blockable[blockedIPs.length];
 		for (int i = 0; i < blockedIPs.length; i++) {
-			addBlockedIP(blockedIPs[i]);
+			bL[i] = new Blockable("IP", blockedIPs[i]);
 		}
-	}
-		
-	// openPorts: List<int>
+        this.blockedIPs = new Blocklist(bL);
+        this.openPorts = new ArrayList<>();
+        this.allowedPorts = new ArrayList<>();
+        this.ipPortsMap = new ConcurrentHashMap<>();
+    }
+
 	public FirewallManager(ArrayList<Integer> openPorts) {
-		// Defaults
-		this.firewallStatus = false;
-		this.blockedIPs = new Blocklist();
-		this.allowedPorts = new ArrayList<>();
-		
-		// Populate openPorts
-		this.openPorts = openPorts;
-	}
-		
-	// + Firewall(openPorts: List<Integer>, blockedIPs: List<String>)
-	public FirewallManager(ArrayList<Integer> openPorts, String[] blockedIPs) {
-		// Defaults
-		this.firewallStatus = false;
-		this.allowedPorts = new ArrayList<>();
-		
-		// Populate openPorts
-		this.openPorts = openPorts;
-				
-		// Populate blockedIPs
+        this.firewallStatus = false;
+        this.blockedIPs = new Blocklist();
+        this.openPorts = new ArrayList<>(openPorts);
+        this.allowedPorts = new ArrayList<>();
+        this.ipPortsMap = new ConcurrentHashMap<>();
+    }
+
+	public FirewallManager(String[] blockedIPs, ArrayList<Integer> openPorts) {
+        this.firewallStatus = false;
+		Blockable[] bL = new Blockable[blockedIPs.length];
 		for (int i = 0; i < blockedIPs.length; i++) {
-			addBlockedIP(blockedIPs[i]);
+			bL[i] = new Blockable("IP", blockedIPs[i]);
 		}
-	}
-		
-	public void startFirewall() throws PcapNativeException {
-		this.firewallStatus = true;
-		while (firewallStatus) {
-			try {
-				PcapNetworkInterface nif = Pcaps.findAllDevs().get(0);
-				int snapshotLength = 65536;
-				int readTimeout = 50;
+        this.blockedIPs = new Blocklist(bL);
+        this.openPorts = new ArrayList<>(openPorts);
+        this.allowedPorts = new ArrayList<>();
+        this.ipPortsMap = new ConcurrentHashMap<>();
+    }
 
-				PcapHandle handle = nif.openLive(snapshotLength, PcapNetworkInterface.PcapMode.PROMISCUOUS, readTimeout);
+    public void startFirewall() throws PcapNativeException {
+        this.firewallStatus = true;
+        try {
+            PcapNetworkInterface nif = Pcaps.findAllDevs().get(0);
+            int snapshotLength = 65536;
+            int readTimeout = 50;
 
-				PacketListener listener = packet -> {
-					if (packet instanceof IpPacket) {
-						IpPacket ipPacket = (IpPacket) packet;
+            try (PcapHandle handle = nif.openLive(snapshotLength, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, readTimeout)) {
+                PacketListener listener = packet -> {
+                    IpPacket ipPacket = packet.get(IpPacket.class);
+                    if (ipPacket != null) {
 
-						if (ipPacket.getPayload() instanceof TcpPacket) {
-							TcpPacket tcpPacket = (TcpPacket) ipPacket.getPayload();
-							if (tcpPacket.getTcpFlags().syn()) {
-								InetAddress srcIp = ipPacket.getHeader().getSrcAddr();
-								int destPort = tcpPacket.getHeader().getDstPort().valueAsInt();
+                        if (ipPacket.getPayload() instanceof TcpPacket tcpPacket) {
+                            if (tcpPacket.getHeader().getSyn()) {
+                                InetAddress srcIp = ipPacket.getHeader().getSrcAddr();
+                                int destPort = tcpPacket.getHeader().getDstPort().valueAsInt();
 
-								ipToPortsMap.putIfAbsent(srcIp, new HashSet<>());
-								ipToPortsMap.get(srcIp).add(destPort);
+                                ipPortsMap.putIfAbsent(srcIp, new HashSet<>());
+                                ipPortsMap.get(srcIp).add(destPort);
 
-								if (ipToPortsMap.get(srcIp).size() >= 5) {
-									String srcIP = ipToPortsMap.get(srcIp);
-									if (blockedIPs.checkBlocked(new blockable("IP", srcIP))) {
-										addBlockedIP(srcIP);
-									}
-								}
-							}
-					}
-				};
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-			} finally {}
-		}
-	}
-		
-	public void stopFirewall() {
-		this.firewallStatus = false;
-	}
-		
-	public boolean checkBlockedIP(String ip) {
-		Blockable blockedIP = new Blockable("IP", ip);
-		return blockedIPs.checkBlocked(blockedIP);
-	}
-		
-	public void addBlockedIP(String ip) {
-		String id = "IP";
-		String name = ip;
-		
-		Blockable blockItem = new Blockable(id, name);
-		if (!this.blockedIPs.checkBlocked(blockItem)) {
-			this.blockedIPs.addListBlocked(blockItem);
-		}
-	}
-		
-	public void removeBlockedIP(String ip) {
-		String id = "IP";
-		String name = ip;
-		
-		this.blockedIPs.removeListBlocked(new Blockable(id, name));
-	}
-		
-	public boolean checkPortStatus(int port) {
-		scanPorts();
-		return this.openPorts.contains(port);
-	}
-		
-	public void scanPorts() {
-		PortScanner ps = new PortScanner(allowedPorts);
-		this.openPorts = ps.getOpenPorts();
+                                if (ipPortsMap.get(srcIp).size() >= 5) {
+                                    String srcIP = srcIp.getHostAddress();
+                                    if (!blockedIPs.checkBlocked(new Blockable("IP", srcIP))) {
+                                        addBlockedIP(srcIP);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
 
-		ps.checkAuthorizations();
-	}
+                while (firewallStatus) {
+                    handle.loop(1, listener);
+                }
+            }
+        } catch (Exception e) {
+			System.out.println(e.toString());
+        }
+    }
+
+    public void stopFirewall() {
+        this.firewallStatus = false;
+    }
+
+    public boolean checkBlockedIP(String ip) {
+        Blockable blockedIP = new Blockable("IP", ip);
+        return blockedIPs.checkBlocked(blockedIP);
+    }
+
+    public void addBlockedIP(String ip) {
+        Blockable blockItem = new Blockable("IP", ip);
+        if (!this.blockedIPs.checkBlocked(blockItem)) {
+            this.blockedIPs.addListBlocked(blockItem);
+        }
+    }
+
+    public void removeBlockedIP(String ip) {
+        this.blockedIPs.removeListBlocked(new Blockable("IP", ip));
+    }
+
+    public boolean checkPortStatus(int port) {
+        scanPorts();
+        return this.openPorts.contains(port);
+    }
+
+    public void scanPorts() {
+        PortScanner ps = new PortScanner(allowedPorts);
+        this.openPorts = ps.getOpenPorts();
+        ps.checkAuthorizations();
+    }
 
     public void allowPort(int port) {
         allowedPorts.add(port);

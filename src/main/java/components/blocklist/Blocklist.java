@@ -1,7 +1,5 @@
 package components.blocklist;
 
-import components.blocklist.Blockable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
