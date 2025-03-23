@@ -10,23 +10,35 @@ import java.util.Scanner;
 import components.blocklist.Blockable;
 import components.blocklist.Blocklist;
 
+/**
+ * The SettingsHandler class is responsible for managing the settings file.
+ * It provides functionality to save and retrieve blocked IPs and allowed ports.
+ */
 public class SettingsHandler {
     File settingsFile = new File("settings.txt");
-    
 
+    /**
+     * Default constructor that initializes the settings file.
+     * Ensures the file exists by calling {@link #checkFileExistence()}.
+     */
     public SettingsHandler() {
         checkFileExistence();
     }
 
+    /**
+     * Constructor that accepts a custom file path for the settings file.
+     * Ensures the file exists by calling {@link #checkFileExistence()}.
+     * 
+     * @param pathname The path to the settings file.
+     */
     public SettingsHandler(String pathname) {
         this.settingsFile = new File(pathname);
         checkFileExistence();
     }
 
-	/**
-     * This method checks if the settingsFile exists.
-     * If it does not exist, it creates a new file.
-     * It is used to ensure that the warning log file is available for writing.
+    /**
+     * Checks if the settings file exists. If it does not exist, creates a new file.
+     * Logs an error message if the file cannot be created.
      */
     private void checkFileExistence() {
         if ( !settingsFile.exists() ) {
@@ -41,6 +53,12 @@ public class SettingsHandler {
         }
     }
 
+    /**
+     * Converts the blocked IPs in the given Blocklist to a formatted string.
+     * 
+     * @param bL The Blocklist containing blocked IPs.
+     * @return A formatted string representing the blocked IPs.
+     */
     private String saveBlockedIPsStr(Blocklist bL) {
         StringBuilder content = new StringBuilder();
         content.append("Blocked IPs\n");
@@ -54,6 +72,12 @@ public class SettingsHandler {
         return content.toString();
     }
 
+    /**
+     * Converts the allowed ports in the given list to a formatted string.
+     * 
+     * @param aP The list of allowed ports.
+     * @return A formatted string representing the allowed ports.
+     */
     private String saveAllowedPortsStr(ArrayList<Integer> aP) {
         StringBuilder content = new StringBuilder();
         content.append("Allowed Ports\n");
@@ -66,6 +90,12 @@ public class SettingsHandler {
         return content.toString();
     }
 
+    /**
+     * Saves the allowed ports and blocked IPs to the settings file.
+     * 
+     * @param aP The list of allowed ports.
+     * @param bL The Blocklist containing blocked IPs.
+     */
     public void savePortsIPs(ArrayList<Integer> aP, Blocklist bL) {
         StringBuilder sb = new StringBuilder();
         sb.append(saveAllowedPortsStr(aP));
@@ -78,6 +108,11 @@ public class SettingsHandler {
         }
     }
 
+    /**
+     * Retrieves the blocked IPs from the settings file.
+     * 
+     * @return An array of blocked IPs as strings.
+     */
     public String[] retrieveBlockedIPs() {
         ArrayList<String> blockedIps = new ArrayList<>();
 
@@ -103,6 +138,11 @@ public class SettingsHandler {
         return blockedIps.toArray(new String[0]);
     }
 
+    /**
+     * Retrieves the allowed ports from the settings file.
+     * 
+     * @return A list of allowed ports as integers.
+     */
     public ArrayList<Integer> retrieveAllowedPorts() {
         ArrayList<Integer> allowedPorts = new ArrayList<>();
 

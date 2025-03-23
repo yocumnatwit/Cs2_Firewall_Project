@@ -7,15 +7,31 @@ import java.util.concurrent.CountDownLatch;
 import components.threadhandler.ThreadHandler;
 import components.warnman.WarningManager;
 
+/**
+ * The PortScanner class is responsible for scanning ports on a local machine,
+ * managing authorized ports, and detecting unauthorized open ports.
+ * It uses a ThreadHandler to manage concurrent port scanning tasks.
+ */
 public class PortScanner {
-    private ArrayList<Integer> authorizedPorts = new ArrayList<>();
+    private final ArrayList<Integer> authorizedPorts = new ArrayList<>();
     private ArrayList<Integer> openPorts = new ArrayList<>();
     public ThreadHandler th;
 
+    /**
+     * Constructs a PortScanner with a specified ThreadHandler.
+     *
+     * @param th the ThreadHandler to manage threads for port scanning
+     */
     public PortScanner(ThreadHandler th) {
         this.th = th;
     }
 
+    /**
+     * Constructs a PortScanner with a list of authorized ports and a ThreadHandler.
+     *
+     * @param authPorts the list of authorized ports
+     * @param th        the ThreadHandler to manage threads for port scanning
+     */
     public PortScanner(ArrayList<Integer> authPorts, ThreadHandler th) {
         for (Integer port : authPorts) {
             authorizedPorts.add(port);
@@ -23,6 +39,11 @@ public class PortScanner {
         this.th = th;
     }
 
+    /**
+     * Sends a warning message to the WarningManager and logs it to a file.
+     *
+     * @param warning the warning message to be logged
+     */
     private void sendWarning(String warning) {
         java.io.File warningLogFile = new java.io.File("warningLog.txt");
         WarningManager warnMan = new WarningManager(warningLogFile);
@@ -31,6 +52,11 @@ public class PortScanner {
         warnMan.writeWarnings();
     }
 
+    /**
+     * Scans all ports on the local machine and returns a list of open ports.
+     *
+     * @return a list of open ports
+     */
     public ArrayList<Integer> scanPorts() {
         Vector<Integer> detectedOpenPortsVec = new Vector<>();
         try {
@@ -58,6 +84,13 @@ public class PortScanner {
         return new ArrayList<>(detectedOpenPortsVec);
     }
 
+    /**
+     * Scans a range of ports on the local machine and returns a list of open ports.
+     *
+     * @param start the starting port number
+     * @param end   the ending port number
+     * @return a list of open ports within the specified range
+     */
     public ArrayList<Integer> scanPorts(int start, int end){
         ArrayList<Integer> openPorts = new ArrayList<>();
         for (int port = start; port <= end; port++) {
@@ -72,32 +105,65 @@ public class PortScanner {
         return openPorts;
     }
 
+    /**
+     * Returns the list of authorized ports.
+     *
+     * @return the list of authorized ports
+     */
     public ArrayList<Integer> getAuthorizedPorts() {
         return authorizedPorts;
     }
 
+    /**
+     * Returns the list of currently open ports.
+     * This method updates the list of open ports before returning it.
+     *
+     * @return the list of open ports
+     */
     public ArrayList<Integer> getOpenPorts() {
         updateOpenPorts();
         return openPorts;
     }
 
+    /**
+     * Updates the list of open ports by scanning all ports.
+     */
     public void updateOpenPorts() {
         openPorts = scanPorts();
     }
 
+    /**
+     * Adds a port to the list of authorized ports.
+     *
+     * @param port the port to be authorized
+     */
     public void allowPort(int port) {
         authorizedPorts.add(port);
     }
 
+    /**
+     * Removes a port from the list of authorized ports.
+     *
+     * @param port the port to be disallowed
+     */
     public void disallowPort(int port) {
         authorizedPorts.remove(port);
     }
 
+    /**
+     * Checks if a specific port is currently open.
+     *
+     * @param port the port to check
+     * @return true if the port is open, false otherwise
+     */
     public boolean checkportStatus(int port) {
         updateOpenPorts();
         return openPorts.contains(port);
     }
 
+    /**
+     * Checks for unauthorized open ports and sends warnings for any detected.
+     */
     public void checkAuthorizations() {
         updateOpenPorts();
         for (Integer port : openPorts) {

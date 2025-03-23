@@ -3,8 +3,12 @@ package components.blocklist;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * The purpose of Blocklist is to manage a list of Blockable objects.
+ * It provides streamlined access and functionality to a preconstructed ArrayList.
+ */
 public class Blocklist {
-    private final ArrayList<Blockable> listBlocked = new ArrayList<Blockable>();
+    private final ArrayList<Blockable> listBlocked = new ArrayList<>();
 
     /**
      * Constructs a new Blocklist object that initializes an empty list of blocked items.
@@ -60,7 +64,11 @@ public class Blocklist {
         return listBlocked.size();
     }
 
-
+    /*
+     * Return raw ArrayList.
+     * 
+     * @return the source ArrayList
+     */
     public ArrayList<Blockable> toArray(){
         return listBlocked;
     }

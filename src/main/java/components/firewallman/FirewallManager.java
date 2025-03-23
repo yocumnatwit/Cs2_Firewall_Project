@@ -19,6 +19,11 @@ import components.blocklist.Blockable;
 import components.blocklist.Blocklist;
 import components.portscan.PortScanner;
 
+/**
+ * The FirewallManager class manages the firewall operations, including blocking IPs,
+ * monitoring open ports, and handling port scanning. It uses a PortScanner to update
+ * open ports and a Blocklist to manage blocked IPs.
+ */
 public class FirewallManager {
     // Defining global variables
     public volatile boolean firewallStatus; // Thread-safe flag
@@ -28,6 +33,11 @@ public class FirewallManager {
     private final Map<InetAddress, Set<Integer>> ipPortsMap;
 	private PortScanner ps;
 
+    /**
+     * Constructor to initialize the FirewallManager with a PortScanner.
+     *
+     * @param ps the PortScanner instance used for port scanning.
+     */
     public FirewallManager(PortScanner ps) {
         this.firewallStatus = false;
         this.blockedIPs = new Blocklist();
@@ -37,6 +47,12 @@ public class FirewallManager {
 		this.ps = ps;
     }
 
+    /**
+     * Constructor to initialize the FirewallManager with a list of blocked IPs and a PortScanner.
+     *
+     * @param blockedIPs an array of IP addresses to be blocked.
+     * @param ps the PortScanner instance used for port scanning.
+     */
 	public FirewallManager(String[] blockedIPs, PortScanner ps) {
         this.firewallStatus = false;
 		Blockable[] bL = new Blockable[blockedIPs.length];
@@ -50,6 +66,12 @@ public class FirewallManager {
 		this.ps = ps;
     }
 
+    /**
+     * Constructor to initialize the FirewallManager with allowed ports and a PortScanner.
+     *
+     * @param allowedPorts a list of ports that are allowed.
+     * @param ps the PortScanner instance used for port scanning.
+     */
 	public FirewallManager(ArrayList<Integer> allowedPorts, PortScanner ps) {
         this.firewallStatus = false;
         this.blockedIPs = new Blocklist();
@@ -59,6 +81,13 @@ public class FirewallManager {
         this.ps = ps;
     }
 
+    /**
+     * Constructor to initialize the FirewallManager with blocked IPs, allowed ports, and a PortScanner.
+     *
+     * @param blockedIPs an array of IP addresses to be blocked.
+     * @param allowedPorts a list of ports that are allowed.
+     * @param ps the PortScanner instance used for port scanning.
+     */
 	public FirewallManager(String[] blockedIPs, ArrayList<Integer> allowedPorts, PortScanner ps) {
         this.firewallStatus = false;
 		Blockable[] bL = new Blockable[blockedIPs.length];
@@ -72,6 +101,11 @@ public class FirewallManager {
         this.ps = ps;
     }
 
+    /**
+     * Starts the firewall, enabling packet monitoring and blocking based on rules.
+     *
+     * @throws PcapNativeException if there is an error accessing the network interface.
+     */
     public void startFirewall() throws PcapNativeException {
         this.firewallStatus = true;
         try {
@@ -113,15 +147,29 @@ public class FirewallManager {
         }
     }
 
+    /**
+     * Stops the firewall, disabling packet monitoring.
+     */
     public void stopFirewall() {
         this.firewallStatus = false;
     }
 
+    /**
+     * Checks if a given IP address is blocked.
+     *
+     * @param ip the IP address to check.
+     * @return true if the IP is blocked, false otherwise.
+     */
     public boolean checkBlockedIP(String ip) {
         Blockable blockedIP = new Blockable("IP", ip);
         return blockedIPs.checkBlocked(blockedIP);
     }
 
+    /**
+     * Adds an IP address to the blocklist.
+     *
+     * @param ip the IP address to block.
+     */
     public void addBlockedIP(String ip) {
         Blockable blockItem = new Blockable("IP", ip);
         if (!this.blockedIPs.checkBlocked(blockItem)) {
@@ -129,29 +177,67 @@ public class FirewallManager {
         }
     }
 
+    /**
+     * Removes an IP address from the blocklist.
+     *
+     * @param ip the IP address to unblock.
+     */
     public void removeBlockedIP(String ip) {
         this.blockedIPs.removeListBlocked(new Blockable("IP", ip));
     }
 
+    /**
+     * Checks if a specific port is open.
+     *
+     * @param port the port number to check.
+     * @return true if the port is open, false otherwise.
+     */
     public boolean checkPortStatus(int port) {
         scanPorts();
         return this.openPorts.contains(port);
     }
 
+    /**
+     * Scans for open ports and updates the list of open ports.
+     */
     public void scanPorts() {
         this.openPorts = ps.getOpenPorts();
         ps.checkAuthorizations();
     }
 
+    /**
+     * Allows a specific port by adding it to the allowed ports list.
+     *
+     * @param port the port number to allow.
+     */
     public void allowPort(int port) {
         allowedPorts.add(port);
     }
 
+    /**
+     * Disallows a specific port by removing it from the allowed ports list.
+     *
+     * @param port the port number to disallow.
+     */
     public void disallowPort(int port) {
         allowedPorts.remove(port);
     }
 
+    /**
+     * Retrieves the blocklist of IPs.
+     *
+     * @return the Blocklist instance containing blocked IPs.
+     */
     public Blocklist getBlockedIPs(){
         return blockedIPs;
+    }
+
+    /**
+     * Retrieves the list of allowed ports.
+     *
+     * @return an ArrayList of allowed port numbers.
+     */
+    public ArrayList<Integer> getAllowedPorts() {
+        return allowedPorts;
     }
 }

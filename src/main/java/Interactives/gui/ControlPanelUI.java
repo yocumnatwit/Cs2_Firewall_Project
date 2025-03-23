@@ -20,10 +20,13 @@ import javafx.stage.Stage;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+
 import org.pcap4j.core.PcapNativeException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import components.settingshandler.SettingsHandler;
 
 
 
@@ -49,6 +52,7 @@ public class ControlPanelUI extends Application {
     PortScanner portScanner = new PortScanner(threadHandler);
     FirewallManager fireWallManager = new FirewallManager(portScanner);
     WarningManager warningManager = new WarningManager();
+    SettingsHandler settingsHandler = new SettingsHandler();
 
     //JavaFX objects
     private Group group;
@@ -464,6 +468,7 @@ public class ControlPanelUI extends Application {
             //Add IP to blocklist in firewall
             fireWallManager.addBlockedIP(input);
             addTextToPanel(textPanel, String.format("IP Blocked: %s", input));
+            settingsHandler.savePortsIPs(fireWallManager.getAllowedPorts(), fireWallManager.getBlockedIPs());
         }else{
             addTextToPanel(textPanel, "INVALID IP");
         }
@@ -480,6 +485,7 @@ public class ControlPanelUI extends Application {
             //Add IP to blocklist in firewall
             fireWallManager.removeBlockedIP(input);
             addTextToPanel(textPanel, String.format("IP Unblocked: %s", input));
+            settingsHandler.savePortsIPs(fireWallManager.getAllowedPorts(), fireWallManager.getBlockedIPs());
         }else{
             addTextToPanel(textPanel, "INVALID IP");
         }
@@ -497,6 +503,7 @@ public class ControlPanelUI extends Application {
             int portNum = Integer.parseInt(input);
             fireWallManager.allowPort(portNum);
             addTextToPanel(textPanel, String.format("Port Blocked: %d", portNum));
+            settingsHandler.savePortsIPs(fireWallManager.getAllowedPorts(), fireWallManager.getBlockedIPs());
         }else{
             addTextToPanel(textPanel, "INVALID PORT");
         }
@@ -515,6 +522,7 @@ public class ControlPanelUI extends Application {
             int portNum = Integer.parseInt(input);
             fireWallManager.disallowPort(portNum);
             addTextToPanel(textPanel, String.format("Port UnBlocked: %d", portNum));
+            settingsHandler.savePortsIPs(fireWallManager.getAllowedPorts(), fireWallManager.getBlockedIPs());
         }else{
             addTextToPanel(textPanel, "INVALID PORT");
         }
