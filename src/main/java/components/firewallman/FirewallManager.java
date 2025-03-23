@@ -50,24 +50,26 @@ public class FirewallManager {
 		this.ps = ps;
     }
 
-	public FirewallManager(ArrayList<Integer> openPorts) {
+	public FirewallManager(ArrayList<Integer> allowedPorts, PortScanner ps) {
         this.firewallStatus = false;
         this.blockedIPs = new Blocklist();
-        this.openPorts = new ArrayList<>(openPorts);
-        this.allowedPorts = new ArrayList<>();
+        this.openPorts = new ArrayList<>();
+        this.allowedPorts = new ArrayList<>(allowedPorts);
         this.ipPortsMap = new ConcurrentHashMap<>();
+        this.ps = ps;
     }
 
-	public FirewallManager(String[] blockedIPs, ArrayList<Integer> openPorts) {
+	public FirewallManager(String[] blockedIPs, ArrayList<Integer> allowedPorts, PortScanner ps) {
         this.firewallStatus = false;
 		Blockable[] bL = new Blockable[blockedIPs.length];
 		for (int i = 0; i < blockedIPs.length; i++) {
 			bL[i] = new Blockable("IP", blockedIPs[i]);
 		}
         this.blockedIPs = new Blocklist(bL);
-        this.openPorts = new ArrayList<>(openPorts);
-        this.allowedPorts = new ArrayList<>();
+        this.openPorts = new ArrayList<>();
+        this.allowedPorts = new ArrayList<>(allowedPorts);
         this.ipPortsMap = new ConcurrentHashMap<>();
+        this.ps = ps;
     }
 
     public void startFirewall() throws PcapNativeException {
