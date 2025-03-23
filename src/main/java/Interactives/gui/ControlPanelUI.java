@@ -50,9 +50,9 @@ public class ControlPanelUI extends Application {
     //Setting up the backend
     ThreadHandler threadHandler = new ThreadHandler();
     PortScanner portScanner = new PortScanner(threadHandler);
-    FirewallManager fireWallManager = new FirewallManager(portScanner);
-    WarningManager warningManager = new WarningManager();
     SettingsHandler settingsHandler = new SettingsHandler();
+    FirewallManager fireWallManager = new FirewallManager(settingsHandler.retrieveBlockedIPs(), settingsHandler.retrieveAllowedPorts(), portScanner);
+    WarningManager warningManager = new WarningManager();
 
     //JavaFX objects
     private Group group;
