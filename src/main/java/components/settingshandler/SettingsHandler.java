@@ -15,7 +15,7 @@ import components.blocklist.Blocklist;
  * It provides functionality to save and retrieve blocked IPs and allowed ports.
  */
 public class SettingsHandler {
-    File settingsFile = new File("settings.txt");
+    private File settingsFile = new File("settings.txt");
 
     /**
      * Default constructor that initializes the settings file.
