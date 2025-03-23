@@ -433,12 +433,12 @@ public class ControlPanelUI extends Application {
 
                     case "block port":
                         //addTextToPanel(mainText, "Testing block port input: " + input);
-                        blockPort(input);
+                        blockPort(input, mainText);
                         break;
 
                     case "remove blocked port":
                         //addTextToPanel(mainText, "Testing remove blocked port input: " + input);
-                        removeBlockedPort(input);
+                        removeBlockedPort(input, mainText);
                         break;
                 }
                 inputTextField.clear();
@@ -490,8 +490,16 @@ public class ControlPanelUI extends Application {
      *
      * @param input  input will be validated to retrieve a port that will be blocked
      */
-    private void blockPort(String input){
-        // TODO: Implement this method
+    private void blockPort(String input, Text textPanel){
+        //Verify port number
+        if (verifyPort(input)){
+            //Add port to blocklist in firewall
+            int portNum = Integer.parseInt(input);
+            fireWallManager.allowPort(portNum);
+            addTextToPanel(textPanel, String.format("Port Blocked: %d", portNum));
+        }else{
+            addTextToPanel(textPanel, "INVALID PORT");
+        }
     }
 
 
@@ -500,8 +508,16 @@ public class ControlPanelUI extends Application {
      *
      * @param input input will be validated to retrieve a port that will be unblocked
      */
-    private void removeBlockedPort(String input){
-        // TODO: Implement this method
+    private void removeBlockedPort(String input, Text textPanel){
+        //Verify port number
+        if (verifyPort(input)){
+            //Remove port from blocklist in firewall
+            int portNum = Integer.parseInt(input);
+            fireWallManager.disallowPort(portNum);
+            addTextToPanel(textPanel, String.format("Port UnBlocked: %d", portNum));
+        }else{
+            addTextToPanel(textPanel, "INVALID PORT");
+        }
     }
 
 
@@ -529,9 +545,9 @@ public class ControlPanelUI extends Application {
     }
 
     /**
-     * Verified IP
+     * Verifies IP address, returns true if valid
      *
-     * @param input, input that will be verified to see if it is viable IP
+     * @param input will be verified to see if it is viable IP
      */
     public boolean verifyIP (String input){
         String[] splitIP = input.split("\\.");
@@ -546,6 +562,22 @@ public class ControlPanelUI extends Application {
         }
         return true;
     }
+
+
+    /**
+     * Verifies port number
+     *
+     * @param input will be verified to see if it is a valid port
+     */
+    public boolean verifyPort (String input){
+        int portNum = Integer.parseInt(input);
+        if (portNum >= 0 && portNum <= 65535){
+            return true;
+        }
+        return false;
+    }
+
+
 
 
     /**
