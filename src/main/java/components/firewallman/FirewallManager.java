@@ -18,6 +18,7 @@ import org.pcap4j.packet.TcpPacket;
 import components.blocklist.Blockable;
 import components.blocklist.Blocklist;
 import components.portscan.PortScanner;
+import components.warnman.WarningManager;
 
 /**
  * The FirewallManager class manages the firewall operations, including blocking IPs,
@@ -130,6 +131,8 @@ public class FirewallManager {
                                     String srcIP = srcIp.getHostAddress();
                                     if (!blockedIPs.checkBlocked(new Blockable("IP", srcIP))) {
                                         addBlockedIP(srcIP);
+                                        WarningManager wM = new WarningManager();
+                                        wM.writeWarning(String.format("Suspicious IP: %s", srcIP));
                                     }
                                 }
                             }
