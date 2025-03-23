@@ -407,7 +407,7 @@ public class ControlPanelUI extends Application {
         TextField inputTextField = new TextField();
         inputTextField.setPrefWidth(canvas.getWidth() / 2);
         inputTextField.setLayoutX(inputText.getX());
-        inputTextField.setLayoutY(inputText.getY() + buffer / 2);
+        inputTextField.setLayoutY(inputText.getY() + buffer / 2.0);
         inputTextField.setPromptText("Add or Remove Blocked IPs and Ports");
 
 
@@ -571,10 +571,7 @@ public class ControlPanelUI extends Application {
      */
     public boolean verifyPort (String input){
         int portNum = Integer.parseInt(input);
-        if (portNum >= 0 && portNum <= 65535){
-            return true;
-        }
-        return false;
+        return portNum >= 0 && portNum <= 65535;
     }
 
 
