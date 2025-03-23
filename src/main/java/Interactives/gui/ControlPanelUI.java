@@ -428,7 +428,7 @@ public class ControlPanelUI extends Application {
 
                     case "remove blocked ip":
                         // addTextToPanel(mainText, "Testing remove blocked ip input: " + input);
-                        removeBlockedIP(input);
+                        removeBlockedIP(input, mainText);
                         break;
 
                     case "block port":
@@ -467,8 +467,6 @@ public class ControlPanelUI extends Application {
         }else{
             addTextToPanel(textPanel, "INVALID IP");
         }
-
-
     }
 
     /**
@@ -476,8 +474,15 @@ public class ControlPanelUI extends Application {
      *
      * @param input input will be validated to retrieve an IP that will be unblocked
      */
-    private void removeBlockedIP(String input){
-        // TODO: Implement this method
+    private void removeBlockedIP(String input, Text textPanel){
+        //Verify IP is valid
+        if (verifyIP(input)){
+            //Add IP to blocklist in firewall
+            fireWallManager.removeBlockedIP(input);
+            addTextToPanel(textPanel, String.format("IP Unblocked: %s", input));
+        }else{
+            addTextToPanel(textPanel, "INVALID IP");
+        }
     }
 
     /**
