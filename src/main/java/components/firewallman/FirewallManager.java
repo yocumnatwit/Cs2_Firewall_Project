@@ -263,7 +263,12 @@ public class FirewallManager {
         scanPorts();
 
         if (openPorts.contains(port)){
-            openPorts.remove(port);
+           for (int i = 0; i < openPorts.size(); i++) {
+                if (openPorts.get(i) == port) {
+                    openPorts.remove(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -279,10 +284,20 @@ public class FirewallManager {
                 if (blocker.getLocalPort() == port){
                     blocker.close();
                     if (blockedPorts.contains(port)) {
-                        blockedPorts.remove(port);
+                        for (int i = 0; i < blockedPorts.size(); i++) {
+                            if (blockedPorts.get(i) == port) {
+                                blockedPorts.remove(i);
+                                break;
+                            }
+                        }
                     }
                     if (portBlockers.contains(blocker)) {
-                        portBlockers.remove(blocker);
+                        for (int i = 0; i < portBlockers.size(); i++) {
+                            if (portBlockers.get(i) == blocker) {
+                                portBlockers.remove(i);
+                                break;
+                            }
+                        }
                     }
                     return;
                 }
