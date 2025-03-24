@@ -32,6 +32,7 @@ public class FirewallManager {
     public volatile boolean firewallStatus; // Thread-safe flag
     private final Blocklist blockedIPs;
     private ArrayList<Integer> openPorts;
+    private ArrayList<Integer> blockedPorts;
     private final ArrayList<Integer> allowedPorts;
     private final Map<InetAddress, Set<Integer>> ipPortsMap;
 	private PortScanner ps;
@@ -212,6 +213,11 @@ public class FirewallManager {
      */
     public void scanPorts() {
         this.openPorts = ps.getOpenPorts();
+        for (int port : openPorts) {
+            if (!blockedPorts.contains(port)) {
+                openPorts.remove(port);
+            }
+        }
         ps.checkAuthorizations();
     }
 
@@ -244,7 +250,8 @@ public class FirewallManager {
         try{
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Port" + port + " is blocked.");
-            //System.in.read();
+            blockedPorts.add(port);
+            openPorts.remove(port);
             portBlockers.add(serverSocket);
         } catch (IOException e) {
             System.err.println("Error blocking port " + port + ": " + e.getMessage());
@@ -262,6 +269,7 @@ public class FirewallManager {
             try{
                 if (blocker.getLocalPort() == port){
                     blocker.close();
+                    blockedPorts.remove(port);
                     portBlockers.remove(blocker);
                     return;
                 }
