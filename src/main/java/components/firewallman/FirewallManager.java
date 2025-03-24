@@ -256,15 +256,6 @@ public class FirewallManager {
         }
 
         scanPorts();
-
-        if (openPorts.contains(port)){
-           for (int i = 0; i < openPorts.size(); i++) {
-                if (openPorts.get(i) == port) {
-                    openPorts.remove(i);
-                    break;
-                }
-            }
-        }
     }
 
 
