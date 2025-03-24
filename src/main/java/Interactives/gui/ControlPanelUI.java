@@ -348,7 +348,7 @@ public class ControlPanelUI extends Application {
      * @param textPanel text panel that the text will be added to
      */
     private void displayOpenPorts(Text textPanel){
-        ArrayList<Integer> sortedList = portScanner.getOpenPorts();
+        ArrayList<Integer> sortedList = fireWallManager.getOpenPorts();
         Collections.sort(sortedList);
         StringBuilder newText = new StringBuilder();
         for (int i = 0; i < sortedList.size(); i++){
