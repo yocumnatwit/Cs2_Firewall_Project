@@ -217,9 +217,9 @@ public class FirewallManager {
      */
     public void scanPorts() {
         this.openPorts = ps.getOpenPorts();
-        for (int i = 0; i < this.openPorts.size(); i++){
-            if (blockedPorts.contains(this.openPorts.get(i))){
-                this.openPorts.remove(i);
+        for (int port : openPorts) {
+            if (blockedPorts.contains(port)) {
+                openPorts.remove(openPorts.indexOf(port));
             }
         }
         ps.checkAuthorizations();
@@ -261,6 +261,15 @@ public class FirewallManager {
         }
 
         scanPorts();
+
+        if (openPorts.contains(port)){
+           for (int i = 0; i < openPorts.size(); i++) {
+                if (openPorts.get(i) == port) {
+                    openPorts.remove(i);
+                    break;
+                }
+            }
+        }
     }
 
 
@@ -299,4 +308,13 @@ public class FirewallManager {
 
         System.out.println("Port Was Not Blocked");
     }
+
+    /**
+     * Gets the open ports in an ArrayList of Intgers
+     */
+    public ArrayList<Integer> getOpenPorts(){
+        scanPorts();
+        return openPorts;
+    }
+
 }
