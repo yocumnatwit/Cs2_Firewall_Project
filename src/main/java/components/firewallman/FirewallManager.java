@@ -218,8 +218,8 @@ public class FirewallManager {
     public void scanPorts() {
         this.openPorts = ps.getOpenPorts();
         for (int port : openPorts) {
-            if (!blockedPorts.contains(port)) {
-                openPorts.remove(port);
+            if (blockedPorts.contains(port)) {
+                openPorts.remove(openPorts.indexOf(port));
             }
         }
         ps.checkAuthorizations();
