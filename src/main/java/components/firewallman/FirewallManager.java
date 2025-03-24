@@ -49,6 +49,7 @@ public class FirewallManager {
         this.openPorts = new ArrayList<>();
         this.allowedPorts = new ArrayList<>();
         this.ipPortsMap = new ConcurrentHashMap<>();
+        this.blockedPorts = new ArrayList<>();
 		this.ps = ps;
     }
 
@@ -68,6 +69,7 @@ public class FirewallManager {
         this.openPorts = new ArrayList<>();
         this.allowedPorts = new ArrayList<>();
         this.ipPortsMap = new ConcurrentHashMap<>();
+        this.blockedPorts = new ArrayList<>();
 		this.ps = ps;
     }
 
@@ -83,6 +85,7 @@ public class FirewallManager {
         this.openPorts = new ArrayList<>();
         this.allowedPorts = new ArrayList<>(allowedPorts);
         this.ipPortsMap = new ConcurrentHashMap<>();
+        this.blockedPorts = new ArrayList<>();
         this.ps = ps;
     }
 
@@ -103,6 +106,7 @@ public class FirewallManager {
         this.openPorts = new ArrayList<>();
         this.allowedPorts = new ArrayList<>(allowedPorts);
         this.ipPortsMap = new ConcurrentHashMap<>();
+        this.blockedPorts = new ArrayList<>();
         this.ps = ps;
     }
 
