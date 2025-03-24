@@ -1,5 +1,6 @@
 package components.firewallman;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -138,12 +139,12 @@ public class FirewallManager {
                                 if (ipPortsMap.get(srcIp).size() >= 5) {
                                     String srcIP = srcIp.getHostAddress();
                                     if (checkBlockedIP(srcIP)) {
-                                        WarningManager wM = new WarningManager();
+                                        WarningManager wM = new WarningManager(new File("warningLog.txt"));
                                         wM.writeWarning(String.format("Prievously Blocked IP Traffic on IP: %s", srcIP));
                                     }
                                     if (!blockedIPs.checkBlocked(new Blockable("IP", srcIP))) {
                                         addBlockedIP(srcIP);
-                                        WarningManager wM = new WarningManager();
+                                        WarningManager wM = new WarningManager(new File("warningLog.txt"));
                                         wM.writeWarning(String.format("Suspicious IP: %s", srcIP));
                                     }
                                 }
