@@ -165,7 +165,7 @@ public class ControlPanelUI extends Application {
         mainText.setTextAlignment(TextAlignment.LEFT);
 
 
-
+        //Warning Button
         Button warningButton = new Button("Show Warnings");
         double warningTextBoxWidth = (canvasWidth / 4) - buffer;
         warningButton.setLayoutX(((canvasWidth * 3 / 4) + ((canvasWidth / 4) - buffer) / 2) - (warningTextBoxWidth / 4));
@@ -182,7 +182,7 @@ public class ControlPanelUI extends Application {
 
         warningButton.setOnAction(warningsButtonPress);
 
-
+        //List Blocked IPs Buttons
         double mainTextPanelWidth = (canvasWidth / 2) - (buffer * 2);
         Button listBlockedIPsButton = new Button("List Blocked IPs");
         listBlockedIPsButton.setLayoutX((canvasWidth / 4) + buffer);
@@ -199,6 +199,7 @@ public class ControlPanelUI extends Application {
 
         listBlockedIPsButton.setOnAction(blockedIPsButtonPress);
 
+        //List Open Ports Button
         Button listOpenPortsButton = new Button("List Open Ports");
         listOpenPortsButton.setLayoutX(listBlockedIPsButton.getLayoutX() + listBlockedIPsButton.getPrefWidth() + buffer);
         listOpenPortsButton.setLayoutY(canvasHeight * 5 / 8 + buffer * 1.5);
@@ -501,9 +502,9 @@ public class ControlPanelUI extends Application {
         if (verifyPort(input)){
             //Add port to blocklist in firewall
             int portNum = Integer.parseInt(input);
-            fireWallManager.allowPort(portNum);
+            fireWallManager.blockPort(portNum);
             addTextToPanel(textPanel, String.format("Port Blocked: %d", portNum));
-            settingsHandler.savePortsIPs(fireWallManager.getAllowedPorts(), fireWallManager.getBlockedIPs());
+            //settingsHandler.savePortsIPs(fireWallManager.getAllowedPorts(), fireWallManager.getBlockedIPs());
         }else{
             addTextToPanel(textPanel, "INVALID PORT");
         }
@@ -520,7 +521,7 @@ public class ControlPanelUI extends Application {
         if (verifyPort(input)){
             //Remove port from blocklist in firewall
             int portNum = Integer.parseInt(input);
-            fireWallManager.disallowPort(portNum);
+            fireWallManager.unblockPort(portNum);
             addTextToPanel(textPanel, String.format("Port UnBlocked: %d", portNum));
             settingsHandler.savePortsIPs(fireWallManager.getAllowedPorts(), fireWallManager.getBlockedIPs());
         }else{
@@ -564,7 +565,11 @@ public class ControlPanelUI extends Application {
         }
 
         for (int i = 0; i < splitIP.length; i++){
-            if (!((Integer.parseInt(splitIP[i]) >= 0 && Integer.parseInt(splitIP[i]) <= 255))){
+            try{
+                if (!((Integer.parseInt(splitIP[i]) >= 0 && Integer.parseInt(splitIP[i]) <= 255))){
+                    return false;
+                }
+            } catch (NumberFormatException e) {
                 return false;
             }
         }
@@ -578,8 +583,12 @@ public class ControlPanelUI extends Application {
      * @param input will be verified to see if it is a valid port
      */
     public boolean verifyPort (String input){
-        int portNum = Integer.parseInt(input);
-        return portNum >= 0 && portNum <= 65535;
+        try {
+            int portNum = Integer.parseInt(input);
+            return portNum >= 0 && portNum <= 65535;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 

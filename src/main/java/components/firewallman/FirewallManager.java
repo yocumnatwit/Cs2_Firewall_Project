@@ -1,6 +1,8 @@
 package components.firewallman;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,6 +35,7 @@ public class FirewallManager {
     private final ArrayList<Integer> allowedPorts;
     private final Map<InetAddress, Set<Integer>> ipPortsMap;
 	private PortScanner ps;
+    private ArrayList<ServerSocket> portBlockers = new ArrayList<>();
 
     /**
      * Constructor to initialize the FirewallManager with a PortScanner.
@@ -208,23 +211,6 @@ public class FirewallManager {
         ps.checkAuthorizations();
     }
 
-    /**
-     * Allows a specific port by adding it to the allowed ports list.
-     *
-     * @param port the port number to allow.
-     */
-    public void allowPort(int port) {
-        allowedPorts.add(port);
-    }
-
-    /**
-     * Disallows a specific port by removing it from the allowed ports list.
-     *
-     * @param port the port number to disallow.
-     */
-    public void disallowPort(int port) {
-        allowedPorts.remove(port);
-    }
 
     /**
      * Retrieves the blocklist of IPs.
@@ -242,5 +228,44 @@ public class FirewallManager {
      */
     public ArrayList<Integer> getAllowedPorts() {
         return allowedPorts;
+    }
+
+
+    /**
+     *Blocks port by creating a server socket that takes up service on that port
+     *
+     * @param port number of port that will be blocked
+     */
+    public void blockPort(int port){
+        try{
+            ServerSocket serverSocket = new ServerSocket(port);
+            System.out.println("Port" + port + " is blocked.");
+            //System.in.read();
+            portBlockers.add(serverSocket);
+        } catch (IOException e) {
+            System.err.println("Error blocking port " + port + ": " + e.getMessage());
+        }
+    }
+
+
+    /**
+     * Unblocks port by closing the server socket
+     *
+     * @param port number of port that will be unblocked
+     */
+    public void unblockPort(int port){
+        for (ServerSocket blocker : portBlockers){
+            try{
+                if (blocker.getLocalPort() == port){
+                    blocker.close();
+                    portBlockers.remove(blocker);
+                    return;
+                }
+            } catch (IOException e) {
+                System.err.println("Error unblocking port " + port + ": " + e.getMessage());
+            }
+        }
+
+        System.out.println("Port Was Not Blocked");
     }
 }
