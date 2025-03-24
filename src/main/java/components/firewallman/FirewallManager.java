@@ -217,9 +217,9 @@ public class FirewallManager {
      */
     public void scanPorts() {
         this.openPorts = ps.getOpenPorts();
-        for (int port : openPorts) {
-            if (blockedPorts.contains(port)) {
-                openPorts.remove(openPorts.indexOf(port));
+        for (int i = 0; i < this.openPorts.size(); i++){
+            if (blockedPorts.contains(this.openPorts.get(i))){
+                this.openPorts.remove(i);
             }
         }
         ps.checkAuthorizations();
