@@ -250,9 +250,6 @@ public class FirewallManager {
         try{
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Port" + port + " is blocked.");
-            if (allowedPorts.contains(port)) {
-                allowedPorts.remove(port);
-            }
             blockedPorts.add(port);
             openPorts.remove(port);
             portBlockers.add(serverSocket);
@@ -260,8 +257,6 @@ public class FirewallManager {
             System.err.println("Error blocking port " + port + ": " + e.getMessage());
         }
     }
-
-
 
 
     /**
@@ -274,9 +269,6 @@ public class FirewallManager {
             try{
                 if (blocker.getLocalPort() == port){
                     blocker.close();
-                    if (!allowedPorts.contains(port)) {
-                        allowedPorts.add(port);                        
-                    }
                     blockedPorts.remove(port);
                     portBlockers.remove(blocker);
                     return;
