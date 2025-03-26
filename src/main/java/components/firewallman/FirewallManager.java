@@ -269,6 +269,7 @@ public class FirewallManager {
             try{
                 if (blocker.getLocalPort() == port){
                     blocker.close();
+                    System.out.print("CHECKING PORTS PLEASE BE BLOCKED");
                     if (blockedPorts.contains(port)) {
                         for (int i = 0; i < blockedPorts.size(); i++) {
                             if (blockedPorts.get(i) == port) {
@@ -301,6 +302,13 @@ public class FirewallManager {
     public ArrayList<Integer> getOpenPorts(){
         scanPorts();
         return openPorts;
+    }
+
+    /**
+     * Gets the blocked ports in an ArrayList of Integers
+     */
+    public ArrayList<Integer> getBlockedPorts(){
+        return blockedPorts;
     }
 
 }

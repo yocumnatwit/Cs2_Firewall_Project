@@ -352,6 +352,7 @@ public class ControlPanelUI extends Application {
         Collections.sort(sortedList);
         StringBuilder newText = new StringBuilder();
         for (int i = 0; i < sortedList.size(); i++){
+            if (fireWallManager.getBlockedPorts().contains(sortedList.get(i))){ continue;}
             if (i != sortedList.size() - 1){
                 newText.append(sortedList.get(i)+ ", ");
             }else {
